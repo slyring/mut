@@ -1,0 +1,24 @@
+{
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "1.0",
+  "FriendlyName": "MergerUtility",
+  "Description": "",
+  "Category": "Utilities",
+  "CreatedBy": "Vijay Kesiraju",
+  "CreatedByURL": "",
+  "DocsURL": "",
+  "MarketplaceURL": "",
+  "SupportURL": "",
+  "CanContainContent": true,
+  "IsBetaVersion": false,
+  "IsExperimentalVersion": false,
+  "Installed": false,
+  "Modules": [
+    {
+      "Name": "MergerUtility",
+      "Type": "Editor",
+      "LoadingPhase": "Default"
+    }
+  ]
+}
