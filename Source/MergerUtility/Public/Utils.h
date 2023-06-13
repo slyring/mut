@@ -17,10 +17,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Merger Utility")
 	static bool MergeActorsWithSettings(const FString& PackageName,
 	                                    const TArray<AActor*>& SelectedActors, const FMeshMergingSettings& Settings,
-	                                    bool bReplaceSourceActors, class AStaticMeshActor*& MeshActor);
+	                                    bool bReplaceSourceActors, bool bUseExplodeMethod,
+	                                    class AStaticMeshActor*& MeshActor);
 
 	static void BuildActorsListFromMergeComponentsData(TArray<UPrimitiveComponent*>& OutComponentsData,
 	                                                   const TArray<AActor*>& Actors, TArray<ULevel*>* OutLevels);
+
+	static void BuildActorsListFromMergeComponentsData_Explode(TArray<AActor*>& NewAddedActors,
+	                                                           TArray<UPrimitiveComponent*>& OutComponentsData,
+	                                                           const TArray<AActor*>& Actors,
+	                                                           TArray<ULevel*>* OutLevels);
 
 	UFUNCTION(BlueprintCallable, Category="Merger Utility")
 	static TArray<FString> SortActorGroup(const TArray<FString>& Keys);
