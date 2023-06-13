@@ -19,13 +19,11 @@
 #if WITH_EDITOR
 bool UUtils::MergeActorsWithSettings(const FString& PackageName, const TArray<AActor*>& SelectedActors,
                                      const FMeshMergingSettings& Settings,
-                                     bool bReplaceSourceActors, bool bUseExplodeMethod, AStaticMeshActor*& MeshActor)
+                                     bool bReplaceSourceActors, AStaticMeshActor*& MeshActor)
 
 {
 	const IMeshMergeUtilities& MeshUtilities = FModuleManager::Get().LoadModuleChecked<
 		IMeshMergeModule>("MeshMergeUtilities").GetUtilities();
-	TArray<AActor*> Actors;
-	TArray<AActor*> Actors_Exploded;
 
 	FVector MergedActorLocation;
 	TArray<UObject*> AssetsToSync;
@@ -34,11 +32,7 @@ bool UUtils::MergeActorsWithSettings(const FString& PackageName, const TArray<AA
 	// Extracting static mesh components from the selected mesh components in the dialog
 	TArray<UPrimitiveComponent*> ComponentsToMerge;
 
-	if (bUseExplodeMethod)
-		BuildActorsListFromMergeComponentsData_Explode(Actors_Exploded, ComponentsToMerge, SelectedActors,
-		                                               &UniqueLevels);
-	else
-		BuildActorsListFromMergeComponentsData(ComponentsToMerge, SelectedActors, &UniqueLevels);
+	BuildActorsListFromMergeComponentsData(ComponentsToMerge, SelectedActors, &UniqueLevels);
 
 	// This restriction is only for replacement of selected actors with merged mesh actor
 	if (UniqueLevels.Num() > 1 && bReplaceSourceActors)
@@ -116,21 +110,13 @@ bool UUtils::MergeActorsWithSettings(const FString& PackageName, const TArray<AA
 			World->UpdateCullDistanceVolumes(MergedActor, MergedActor->GetStaticMeshComponent());
 			GEditor->SelectNone(true, true);
 			GEditor->SelectActor(MergedActor, true, true);
-			MeshActor = MergedActor;
 
-			if (bUseExplodeMethod)
-			{
-				// Remove source actors
-				for (AActor* Actor : Actors_Exploded)
-				{
-					Actor->Destroy();
-				}
-			}
+			MeshActor = MergedActor;
 
 			if (bReplaceSourceActors)
 			{
 				// Remove source actors
-				for (AActor* Actor : Actors)
+				for (AActor* Actor : SelectedActors)
 				{
 					Actor->Destroy();
 				}
@@ -151,44 +137,6 @@ void UUtils::BuildActorsListFromMergeComponentsData(TArray<UPrimitiveComponent*>
 		Actor->GetComponents(PrimComponents);
 		for (UPrimitiveComponent* PrimComponent : PrimComponents)
 			OutComponentsData.Add(PrimComponent);
-
-		if (OutLevels)
-			OutLevels->AddUnique(Actor->GetLevel());
-	}
-}
-
-void UUtils::BuildActorsListFromMergeComponentsData_Explode(TArray<AActor*>& NewAddedActors,
-                                                            TArray<UPrimitiveComponent*>& OutComponentsData,
-                                                            const TArray<AActor*>& Actors, TArray<ULevel*>* OutLevels)
-{
-	for (AActor* Actor : Actors)
-	{
-		check(Actor != nullptr);
-
-		TArray<UInstancedStaticMeshComponent*> IsmComponents;
-		Actor->GetComponents(IsmComponents);
-
-		for (UInstancedStaticMeshComponent* IsmComponent : IsmComponents)
-		{
-			for (int index = 0; index < IsmComponent->GetInstanceCount(); index++)
-			{
-				FTransform Transform;
-				IsmComponent->GetInstanceTransform(index, Transform);
-
-				AStaticMeshActor* SMActor = Cast<AStaticMeshActor>(
-					GEditor->GetEditorSubsystem<UEditorActorSubsystem>()->SpawnActorFromClass(
-						AStaticMeshActor::StaticClass(),
-						FVector(0),
-						FRotator(0), false));
-
-				SMActor->SetActorTransform(Transform);
-				SMActor->GetStaticMeshComponent()->SetStaticMesh(IsmComponent->GetStaticMesh());
-
-				NewAddedActors.Add(SMActor);
-				OutComponentsData.Add(SMActor->GetStaticMeshComponent());
-			}
-		}
-
 
 		if (OutLevels)
 			OutLevels->AddUnique(Actor->GetLevel());
