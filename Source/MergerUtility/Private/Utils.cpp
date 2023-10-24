@@ -140,4 +140,15 @@ void UUtils::BuildActorsListFromMergeComponentsData(TArray<UPrimitiveComponent*>
 			OutLevels->AddUnique(Actor->GetLevel());
 	}
 }
+
+TArray<FString> UUtils::SortActorGroup(const TArray<FString>& Keys)
+{
+	TArray<FString> OriginalArray = Keys;
+	OriginalArray.Sort([](const FString& A, const FString& B)
+	{
+		return A < B;
+	});
+
+	return OriginalArray;
+}
 #endif

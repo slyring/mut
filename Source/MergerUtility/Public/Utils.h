@@ -21,5 +21,9 @@ public:
 
 	static void BuildActorsListFromMergeComponentsData(TArray<UPrimitiveComponent*>& OutComponentsData,
 	                                                   const TArray<AActor*>& Actors, TArray<ULevel*>* OutLevels);
+
+	UFUNCTION(BlueprintCallable, Category="Merger Utility")
+	static TArray<FString> SortActorGroup(const TArray<FString>& Keys);
+
 #endif
 };
